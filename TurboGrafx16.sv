@@ -220,7 +220,7 @@ always_comb begin : responsiveAspect
 			arx = 12'd400;
 			ary = 12'd281;
 		end
-	end else begin
+	end else if (vcrop_en == 0 ) begin
 		if (ce_vid == 'd6) begin // 360px wide
 			// ~overscan = Border Visible
 			if (~overscan) begin
@@ -242,6 +242,14 @@ always_comb begin : responsiveAspect
 				arx = 12'd720;
 				ary = 12'd539;
 			end
+		end
+	end else begin // Fall back on 4:3 for the few games that use nonstandard widths
+		if (~overscan) begin
+			arx = 12'd4;
+			ary = 12'd3;
+		end else begin
+			arx = 12'd47;
+			ary = 12'd37;
 		end
 	end
 end
