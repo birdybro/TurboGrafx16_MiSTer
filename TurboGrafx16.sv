@@ -200,9 +200,58 @@ wire       vcrop_en = status[32];
 wire [3:0] vcopt    = status[36:33];
 reg        en216p;
 reg  [4:0] voff;
+wire [11:0] arx,ary;
+
 always @(posedge CLK_VIDEO) begin
 	en216p <= ((HDMI_WIDTH == 1920) && (HDMI_HEIGHT == 1080) && !forced_scandoubler && !scale);
 	voff <= (vcopt < 6) ? {vcopt,1'b0} : ({vcopt,1'b0} - 5'd24);
+end
+
+always_comb begin : responsiveAspect
+	arx = 0;
+	ary = 0;
+	if (vcrop_en == 1) begin // 5x crop
+		if (ce_vid == 'd6) begin // 360px wide
+			// 360x216
+			arx = 12'd1600;
+			ary = 12'd843;
+		end	else begin // 270px and 540px wide
+			// 540x216 and 270x216
+			arx = 12'd400;
+			ary = 12'd281;
+		end
+	end else if (vcrop_en == 0 ) begin
+		if (ce_vid == 'd6) begin // 360px wide
+			// ~overscan = Border Visible
+			if (~overscan) begin
+				// 360x242
+				arx = 12'd4095;
+				ary = 12'd3209;
+			end else begin
+				// 360x231
+				arx = 12'd3281;
+				ary = 12'd2454;
+			end
+		end	else begin // 270px and 540px wide
+			if (~overscan) begin
+				// 540x242 and 270x242
+				arx = 12'd1080;
+				ary = 12'd847;
+			end else begin
+				// 540x231 and 270x231
+				arx = 12'd720;
+				ary = 12'd539;
+			end
+		end
+	end else begin // Fall back on 4:3 for the few games that use nonstandard widths
+		if (~overscan) begin
+			arx = 12'd4;
+			ary = 12'd3;
+		end else begin
+			arx = 12'd47;
+			ary = 12'd37;
+		end
+	end
 end
 
 wire vga_de;
@@ -210,8 +259,8 @@ video_freak video_freak
 (
 	.*,
 	.VGA_DE_IN(vga_de),
-	.ARX((!ar) ? (overscan ? 8'd4 : 8'd47) : (ar - 1'd1)),
-	.ARY((!ar) ? (overscan ? 8'd3 : 8'd37) : 12'd0),
+	.ARX((!ar) ? arx : (ar - 1'd1)),
+	.ARY((!ar) ? ary : 12'd0),
 	.CROP_SIZE((en216p & vcrop_en) ? 10'd216 : 10'd0),
 	.CROP_OFF(voff),
 	.SCALE(status[38:37])
