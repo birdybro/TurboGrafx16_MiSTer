@@ -83,6 +83,7 @@ entity pce_top is
 		VIDEO_BW		: out std_logic;
 		VIDEO_CE		: out std_logic;
 		VIDEO_CE_FS	: out std_logic;
+		DOTCLOCK    : out std_logic;
 		VIDEO_VS		: out std_logic;
 		VIDEO_HS		: out std_logic;
 		VIDEO_HBL	: out std_logic;
@@ -382,6 +383,8 @@ port map(
 	BG_EN		=> BG_EN,
 	SPR_EN	=> SPR_EN
 );
+
+DOTCLOCK <= VCE_DCC;
 
 VRAM0 : entity work.dpram generic map (addr_width => 15, data_width => 16, disable_value => '0')
 port map (

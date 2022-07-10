@@ -205,38 +205,26 @@ wire [11:0] arx,ary;
 always_comb begin : responsiveAspect
 	arx = 0;
 	ary = 0;
-	if (vcrop_en == 1) begin // 5x crop
-		if (ce_vid == 'd6) begin // 360px wide
-			// 360x216
-			arx = 12'd1600;
-			ary = 12'd1119;
-		end	else begin // 270px and 540px wide
-			// 540x216 and 270x216
-			arx = 12'd10;
-			ary = 12'd7;
+	if (ce_vid == 6) begin // 360px wide
+		// ~overscan = Border Visible
+		if (~overscan) begin
+			// 360x242
+			arx = 12'd4095;
+			ary = 12'd3208;
+		end else begin
+			// 360x231
+			arx = 12'd3541;
+			ary = 12'd2637;
 		end
-	end else if (vcrop_en == 0 ) begin
-		if (ce_vid == 'd6) begin // 360px wide
-			// ~overscan = Border Visible
-			if (~overscan) begin
-				// 360x242
-				arx = 12'd4095;
-				ary = 12'd3208;
-			end else begin
-				// 360x231
-				arx = 12'd3541;
-				ary = 12'd2637;
-			end
-		end	else begin // 270px and 540px wide
-			if (~overscan) begin
-				// 540x242 and 270x242
-				arx = 12'd1080;
-				ary = 12'd847;
-			end else begin
-				// 540x231 and 270x231
-				arx = 12'd720;
-				ary = 12'd539;
-			end
+	end	else begin // 270px and 540px wide
+		if (~overscan) begin
+			// 540x242 and 270x242
+			arx = 12'd1080;
+			ary = 12'd847;
+		end else begin
+			// 540x231 and 270x231
+			arx = 12'd720;
+			ary = 12'd539;
 		end
 	end
 end : responsiveAspect
