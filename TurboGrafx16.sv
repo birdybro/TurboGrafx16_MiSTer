@@ -216,7 +216,7 @@ always_comb begin : responsiveAspect
 			arx = 12'd3541;
 			ary = 12'd2637;
 		end
-	end	else begin // 270px and 540px wide
+	end	else if (ce_vid != 'd6) begin // 270px and 540px wide
 		if (~overscan) begin
 			// 540x242 and 270x242
 			arx = 12'd1080;
